@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>coordinates</title>
+	<meta charset="utf-8"/>
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+	<script type="text/javascript" src="coordinates.json"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+</head>
+<body ng-app="myApp" ng-controller="myCtrl">
+	<div class="container">
+	<div class="row">
+	<form>
+		<label>x:</label><input ng-model="x" type="number" placeholder="x"></input>
+		<label>y:</label><input ng-model="y" type="number" placeholder="y"></input>
+		<button ng-click="save()">get new result</button>
+	</form>
+	</div>
+	<div class="row">
+		<div class="col-sm-3">
+			<ul ng-repeat="point in points">
+				<li>{{point.id + ": " + point.x + ", " + point.y}}</li>
+			</ul>
+		</div>
+		<div class="col-sm-9">
+			<br>
+			<br>
+			<br>
+			<canvas id="myCanvas" width="500" height="500" style="border:5px solid #000000;">
+				Your browser does not support the HTML5 canvas tag.
+			</canvas>
+		</div>
+	</div>
+	</div>
+	
+	<script type="text/javascript">
+		var app=angular.module('myApp', []);
+		app.controller("myCtrl", function ($scope, $http){
+		    $scope.points=new Array();
+			$scope.x='';
+			$scope.y='';
+			$http.get('coordinates.json').then(function(response){
+				for(var j in response.data){
+					$scope.points.push(response.data[j]);
+					var point=$scope.points[j].value.split(",");
+					var m=parseInt(point[0]);
+					var n=parseInt(point[1]);
+					$scope.points[j].x=m;
+					$scope.points[j].y=n;
+					drawpoints($scope.points);
+					console.log($scope.points);
+				}
+			});
+			$scope.save=function(){
+				for(i=0; i<$scope.points.length; i++){
+					var dis=($scope.x-$scope.points[i].x)*($scope.x-$scope.points[i].x)+($scope.y-$scope.points[i].y)*($scope.y-$scope.points[i].y);
+					$scope.points[i].dis=dis;
+					console.log($scope.points[i].dis);
+				}
+				sortByDis($scope.points, 'dis');
+				var c=document.getElementById('myCanvas');
+				var ctx = c.getContext("2d");
+				ctx.clearRect(0, 0, c.width, c.height);
+				ctx.beginPath();
+				drawpoints($scope.points);
+				ctx.font="20px Arial";
+				ctx.fillStyle="red";
+				ctx.beginPath();
+				ctx.arc($scope.x*5,$scope.y*5,5,0,2*Math.PI);
+				ctx.fillText("tar", $scope.x*5, $scope.y*5);
+				ctx.stroke();
+			}
+			var sortByDis=function(array, dis){
+				return array.sort(function(a, b){
+					var x=a[dis];
+					var y=b[dis];
+					return ((x<y)? -1 : ((x>y)? 1 : 0));
+				});
+			}
+			var drawpoints=function(m){
+				var c=document.getElementById('myCanvas');
+				var ctx = c.getContext("2d");
+				ctx.font="20px Arial";
+				ctx.fillStyle="blue";
+				for(i=0; i<$scope.points.length; i++){
+					ctx.beginPath();
+					ctx.arc($scope.points[i].x*5,$scope.points[i].y*5,5,0,2*Math.PI);
+					ctx.fillText($scope.points[i].id, $scope.points[i].x*5, $scope.points[i].y*5);
+					ctx.stroke();
+				}
+			}
+		});
+	</script>
+</body>
+</html>
