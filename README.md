@@ -1,5 +1,5 @@
-# closest-points
-Requirements:Submit a program that outputs 26 coordinates listed in order, closest-to-farthest (physically on the Cartesian Plane) from a single input origin.
+# closest-points(Requirements):
+Write a program that outputs 26 coordinates listed in order, closest-to-farthest (physically on the Cartesian Plane) from a single input origin.
  
 Please use this list of labeled coordinates in a file called “coordinates.json”:
 [
